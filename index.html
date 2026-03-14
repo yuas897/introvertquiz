@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>内向型の隠れた才能診断</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Shippori+Mincho:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #141419;
+  --surface: #1e1e28;
+  --surface-hover: #282834;
+  --border: #333340;
+  --text: #ede9e3;
+  --text-muted: #a09cac;
+  --accent: #c4a882;
+  --accent-dim: rgba(196, 168, 130, 0.15);
+  --accent-glow: rgba(196, 168, 130, 0.10);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.container {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 20px;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* ===== INTRO ===== */
+.intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 85vh;
+  text-align: center;
+  animation: fadeIn 1s ease;
+}
+
+.intro-label {
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 32px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.3s forwards;
+}
+
+.intro h1 {
+  font-family: 'Shippori Mincho', serif;
+  font-weight: 600;
+  font-size: 28px;
+  line-height: 1.7;
+  margin-bottom: 24px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.5s forwards;
+}
+
+.intro h1 em {
+  font-style: normal;
+  color: var(--accent);
+}
+
+.intro-desc {
+  font-size: 14px;
+  line-height: 2;
+  color: var(--text-muted);
+  margin-bottom: 48px;
+  max-width: 440px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.7s forwards;
+}
+
+.btn-start {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  padding: 16px 48px;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-size: 14px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.9s forwards;
+}
+
+.btn-start:hover {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.intro-note {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 32px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 1.1s forwards;
+}
+
+/* ===== QUIZ ===== */
+.quiz { display: none; }
+.quiz.active { display: block; animation: fadeIn 0.5s ease; }
+
+.progress-bar {
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+  margin: 32px 0 48px;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.quiz-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.btn-back, .btn-reset {
+  background: none;
+  border: none;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-size: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 0.3s ease;
+  min-width: 60px;
+}
+
+.btn-back { text-align: left; }
+.btn-reset { text-align: right; }
+
+.btn-back:hover, .btn-reset:hover {
+  color: var(--text);
+}
+
+.btn-back:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.btn-back:disabled:hover {
+  color: var(--text-muted);
+}
+
+.question-num {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--text-muted);
+}
+
+.question-text {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 20px;
+  line-height: 1.8;
+  margin-bottom: 40px;
+  min-height: 80px;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.option {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 18px 24px;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+  display: block;
+  width: 100%;
+}
+
+.option:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+  padding-left: 32px;
+}
+
+.option:active {
+  transform: scale(0.98);
+}
+
+/* ===== RESULT ===== */
+.result { display: none; }
+.result.active { 
+  display: block; 
+  animation: fadeIn 0.8s ease; 
+}
+
+.result-card {
+  margin-top: 24px;
+  padding: 48px 32px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.result-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+
+.result-type-label {
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--accent);
+  margin-bottom: 20px;
+}
+
+.result-type-name {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.result-type-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 32px;
+  letter-spacing: 1px;
+}
+
+.result-divider {
+  width: 40px;
+  height: 1px;
+  background: var(--accent);
+  margin: 0 auto 32px;
+}
+
+.result-desc {
+  font-size: 14px;
+  line-height: 2.2;
+  color: var(--text);
+  text-align: left;
+  margin-bottom: 32px;
+}
+
+.result-traits {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.trait-tag {
+  font-size: 12px;
+  padding: 6px 16px;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  letter-spacing: 1px;
+}
+
+.result-unlock {
+  margin-top: 32px;
+  padding: 24px;
+  background: var(--accent-glow);
+  border: 1px solid rgba(196, 168, 130, 0.2);
+  text-align: center;
+}
+
+.result-unlock-link {
+  display: block;
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.8;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.result-unlock-link:hover {
+  color: var(--accent);
+}
+
+.result-unlock strong {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.result-footer {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+}
+
+/* ===== BUTTONS ===== */
+.btn-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 32px;
+  flex-wrap: wrap;
+}
+
+.btn-x, .btn-share, .btn-retry {
+  padding: 14px 24px;
+  font-family: 'Zen Kaku Gothic New', sans-serif;
+  font-size: 13px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-x {
+  background: var(--text);
+  color: var(--bg);
+  border: 1px solid var(--text);
+  font-weight: 500;
+}
+
+.btn-x:hover {
+  background: transparent;
+  color: var(--text);
+}
+
+.btn-share {
+  background: var(--accent);
+  color: var(--bg);
+  border: 1px solid var(--accent);
+}
+
+.btn-share:hover {
+  background: transparent;
+  color: var(--accent);
+}
+
+.btn-retry {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.btn-retry:hover {
+  border-color: var(--text-muted);
+  color: var(--text);
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.question-enter {
+  animation: fadeUp 0.4s ease;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 480px) {
+  .container { padding: 16px; }
+  .intro h1 { font-size: 22px; }
+  .question-text { font-size: 18px; }
+  .result-card { padding: 36px 20px; }
+  .result-type-name { font-size: 22px; }
+  #capture-card { width: 400px; padding: 40px 28px; }
+  #capture-card .cap-title { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- INTRO -->
+  <div class="intro" id="intro">
+    <div class="intro-label">INTROVERT TALENT FINDER</div>
+    <h1>あなたの中に眠る<br><em>「隠れた才能」</em>を<br>見つけませんか</h1>
+    <p class="intro-desc">
+      内向型には、外向型社会では見えにくい才能がある。<br>
+      8つの質問で、あなたがまだ気づいていない<br>
+      自分の強みを言語化します。
+    </p>
+    <button class="btn-start" onclick="startQuiz()">診断をはじめる</button>
+    <p class="intro-note">※心理学的診断ではなく、内向型として生きてきた経験から作った自己発見ツールです</p>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="quiz" id="quiz">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress"></div>
+    </div>
+    <div class="quiz-nav">
+      <button class="btn-back" id="btnBack" onclick="goBack()">← 戻る</button>
+      <div class="question-num" id="qNum"></div>
+      <button class="btn-reset" onclick="retry()">最初から</button>
+    </div>
+    <div class="question-text" id="qText"></div>
+    <div class="options" id="options"></div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result" id="result">
+    <div class="result-card">
+      <div class="result-type-label">YOUR HIDDEN TALENT</div>
+      <div class="result-type-name" id="rName"></div>
+      <div class="result-type-sub" id="rSub"></div>
+      <div class="result-divider"></div>
+      <div class="result-desc" id="rDesc"></div>
+      <div class="result-traits" id="rTraits"></div>
+    </div>
+    <div class="result-unlock">
+      <a href="https://note.com/yasu42" target="_blank" class="result-unlock-link" id="noteLink"><strong>note</strong>ではさらに詳しく深掘りしています →</a>
+    </div>
+    <div class="btn-actions">
+      <button class="btn-x" onclick="shareToX()">𝕏 にポストする</button>
+      <button class="btn-share" id="btnSave" onclick="shareResult()">画像を保存</button>
+      <button class="btn-retry" onclick="retry()">もう一度</button>
+    </div>
+    <div class="result-footer">内向型の隠れた才能診断</div>
+  </div>
+
+</div>
+
+<script>
+// ===== DATA =====
+
+const questions = [
+  {
+    text: "ひとりの時間、気づいたら何してる？",
+    options: [
+      { text: "頭の中で何かを整理・分解してる", scores: { architect: 3, observer: 1 } },
+      { text: "誰かのことを考えてる", scores: { healer: 3, connector: 1 } },
+      { text: "まだ形にならないアイデアを転がしてる", scores: { alchemist: 3, architect: 1 } },
+      { text: "ぼんやりしてるようで、周りの変化に気づいてる", scores: { observer: 3, healer: 1 } },
+    ]
+  },
+  {
+    text: "「すごいね」と言われるけど、自分的には普通なこと",
+    options: [
+      { text: "ごちゃっとした話を整理するのが早い", scores: { architect: 3, connector: 1 } },
+      { text: "相手が言ってないことまで察してしまう", scores: { healer: 3, observer: 1 } },
+      { text: "ひとつのことに異常に集中できる", scores: { alchemist: 2, architect: 2 } },
+      { text: "場の空気や人間関係を一瞬で読む", scores: { observer: 3, connector: 1 } },
+    ]
+  },
+  {
+    text: "集団の中で、気づくとやってる役回りは？",
+    options: [
+      { text: "話がぐちゃっとしたとき「つまりこういうこと？」って整理する", scores: { architect: 3 } },
+      { text: "居心地悪そうな人にさりげなく声をかけてる", scores: { healer: 3 } },
+      { text: "誰も言わない一言を、ぽつりと落とす", scores: { observer: 3 } },
+      { text: "対立してる人たちの共通点を見つけてる", scores: { connector: 3 } },
+    ]
+  },
+  {
+    text: "一番「自分だな」と思う瞬間は？",
+    options: [
+      { text: "計画通りに物事が形になっていくとき", scores: { architect: 3 } },
+      { text: "話を聴いた相手の表情がゆるんだとき", scores: { healer: 3 } },
+      { text: "みんなが見逃してた核心を突いたとき", scores: { observer: 3 } },
+      { text: "ゼロから何かを生み出したとき", scores: { alchemist: 3 } },
+    ]
+  },
+  {
+    text: "見ていて「もったいない…」と思うのは？",
+    options: [
+      { text: "いい仕組みが放置されてること", scores: { architect: 2, alchemist: 2 } },
+      { text: "才能ある人が、自信がなくて動けないこと", scores: { healer: 2, connector: 2 } },
+      { text: "大事なサインが、騒がしさに埋もれてること", scores: { observer: 3, alchemist: 1 } },
+      { text: "ちょっとのすれ違いで、人と人が離れること", scores: { connector: 3, healer: 1 } },
+    ]
+  },
+  {
+    text: "子どもの頃に褒められたこと、覚えてる？",
+    options: [
+      { text: "説明がうまい、わかりやすいと言われた", scores: { architect: 3 } },
+      { text: "やさしい子だね、と言われた", scores: { healer: 3 } },
+      { text: "よく気がつくね、と驚かれた", scores: { observer: 3 } },
+      { text: "発想がおもしろい、と笑われた", scores: { alchemist: 3 } },
+    ]
+  },
+  {
+    text: "内向的で「得した」と思うことは？",
+    options: [
+      { text: "じっくり考えるから、判断の精度が高い", scores: { architect: 2, observer: 2 } },
+      { text: "浅い付き合いをしないから、信頼が深い", scores: { healer: 2, connector: 2 } },
+      { text: "ノイズが少ないから、小さな変化に気づける", scores: { observer: 3, alchemist: 1 } },
+      { text: "外に出さない分、中で何かが熟成される", scores: { alchemist: 3 } },
+    ]
+  },
+  {
+    text: "自分の才能をひとつだけ届けられるなら？",
+    options: [
+      { text: "ぐちゃぐちゃを整理して、使える形にする", scores: { architect: 3 } },
+      { text: "傷ついた人が自分で立てるよう、そっと支える", scores: { healer: 3 } },
+      { text: "みんなが見てるのに気づかない真実を示す", scores: { observer: 3 } },
+      { text: "あるものを組み替えて、新しい価値をつくる", scores: { alchemist: 3 } },
+    ]
+  }
+];
+
+const types = {
+  architect: {
+    name: "静かな設計者",
+    sub: "The Quiet Architect",
+    desc: "混沌を見ると、つい整理したくなる人。\n\n頭の中にはつねに「構造」がある。複雑な話をすっきりまとめたり、散らかった情報に筋道をつけたり。本人は当たり前にやっているけど、それができなくて困っている人は山ほどいる。\n\n弱点は、完璧に整理してからじゃないと動けないこと。でも、あなたが作った仕組みは、他の人の行動を変える力がある。それは紛れもなく才能。",
+    traits: ["構造化", "論理整理", "仕組み構築", "言語化"],
+    noteUrl: "https://note.com/yasu42"  // → タイプ別記事URLに差し替え
+  },
+  healer: {
+    name: "沈黙の回復者",
+    sub: "The Silent Healer",
+    desc: "言葉にならない気持ちを、黙って受け止められる人。\n\nアドバイスなんかしない。ただ聴く。それだけで相手の表情がゆるむ。あなたのそばにいると、人は勝手に自分の答えを見つけていく。地味に見えるけど、これは外向型が逆立ちしても手に入らない力。\n\n弱点は、人の感情を吸いすぎて自分が消耗すること。でも、あなたの存在に救われている人は、たぶん思っている以上に多い。",
+    traits: ["傾聴", "共感力", "感情の翻訳", "安心感"],
+    noteUrl: "https://note.com/yasu42"  // → タイプ別記事URLに差し替え
+  },
+  observer: {
+    name: "静寂の目撃者",
+    sub: "The Still Observer",
+    desc: "黙ってるけど、全部見えてる人。\n\n会話の中の小さな矛盾、場の空気の微妙な変化、数字の違和感。周りが気づかないことに、あなたはとっくに気づいている。喋ってる人が主役に見えるけど、本当に状況を動かしているのは、あなたの「気づき」のほう。\n\n弱点は、気づいても言わないこと。でも、正しいタイミングで出すあなたの一言は、場の空気を一変させる。",
+    traits: ["洞察力", "パターン認識", "変化の察知", "本質の抽出"],
+    noteUrl: "https://note.com/yasu42"  // → タイプ別記事URLに差し替え
+  },
+  alchemist: {
+    name: "内なる錬金術師",
+    sub: "The Inner Alchemist",
+    desc: "なにもないところから、なにかを生み出せる人。\n\n関係なさそうなもの同士を頭の中でつなげて、独自の発想を形にする。この力は、静かな時間の中でこそ育つ。会議のブレストでは出てこない、熟成された創造性。\n\n弱点は、完成まで時間がかかること。でも、だからこそ、あなたのアウトプットは他の誰にも真似できない。速さより深さで勝負するタイプ。",
+    traits: ["創造性", "独自の視点", "異質な結合", "熟成力"],
+    noteUrl: "https://note.com/yasu42"  // → タイプ別記事URLに差し替え
+  },
+  connector: {
+    name: "見えない架け橋",
+    sub: "The Invisible Bridge",
+    desc: "対立の中に、共通点を見つけてしまう人。\n\n声は大きくない。でも、ぶつかり合う意見の裏にある「本当はみんな同じことを望んでいる」に気づける。内向型だからこそ、どちらの立場も静かに理解できる。\n\n弱点は、橋を架けるのに忙しくて、自分の意見を言わないこと。でも、分断だらけの世の中で、黙って人と人をつなげるあなたの存在価値は、今まさに上がっている。",
+    traits: ["調和力", "多角的理解", "共通点の発見", "静かな仲介"],
+    noteUrl: "https://note.com/yasu42"  // → タイプ別記事URLに差し替え
+  }
+};
+
+// ===== STATE =====
+let currentQ = 0;
+let scores = { architect: 0, healer: 0, observer: 0, alchemist: 0, connector: 0 };
+let history = []; // stores chosen scores per question for undo
+
+// ===== FUNCTIONS =====
+function startQuiz() {
+  document.getElementById('intro').style.display = 'none';
+  document.getElementById('quiz').classList.add('active');
+  showQuestion();
+}
+
+function showQuestion() {
+  const q = questions[currentQ];
+  document.getElementById('progress').style.width = ((currentQ) / questions.length * 100) + '%';
+  document.getElementById('qNum').textContent = `QUESTION ${String(currentQ + 1).padStart(2, '0')} / ${String(questions.length).padStart(2, '0')}`;
+  
+  // Back button state
+  const btnBack = document.getElementById('btnBack');
+  btnBack.disabled = currentQ === 0;
+  
+  const qTextEl = document.getElementById('qText');
+  qTextEl.textContent = q.text;
+  qTextEl.classList.remove('question-enter');
+  void qTextEl.offsetWidth;
+  qTextEl.classList.add('question-enter');
+  
+  const optionsEl = document.getElementById('options');
+  optionsEl.innerHTML = '';
+  
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.textContent = opt.text;
+    btn.style.opacity = '0';
+    btn.style.animation = `fadeUp 0.4s ease ${0.1 + i * 0.08}s forwards`;
+    btn.onclick = () => selectOption(opt.scores);
+    optionsEl.appendChild(btn);
+  });
+}
+
+function selectOption(optScores) {
+  // Save this answer's scores for undo
+  history.push({ ...optScores });
+  
+  for (const [type, score] of Object.entries(optScores)) {
+    scores[type] = (scores[type] || 0) + score;
+  }
+  
+  currentQ++;
+  
+  if (currentQ >= questions.length) {
+    showResult();
+  } else {
+    showQuestion();
+  }
+}
+
+function goBack() {
+  if (currentQ <= 0) return;
+  
+  // Undo last answer's scores
+  const lastScores = history.pop();
+  if (lastScores) {
+    for (const [type, score] of Object.entries(lastScores)) {
+      scores[type] = (scores[type] || 0) - score;
+    }
+  }
+  
+  currentQ--;
+  showQuestion();
+}
+
+function showResult() {
+  document.getElementById('quiz').classList.remove('active');
+  document.getElementById('progress').style.width = '100%';
+  
+  // Find top type
+  let topType = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
+  const t = types[topType];
+  
+  document.getElementById('rName').textContent = t.name;
+  document.getElementById('rSub').textContent = t.sub;
+  document.getElementById('rDesc').innerHTML = t.desc.replace(/\n\n/g, '<br><br>');
+  
+  const traitsEl = document.getElementById('rTraits');
+  traitsEl.innerHTML = '';
+  t.traits.forEach(trait => {
+    const span = document.createElement('span');
+    span.className = 'trait-tag';
+    span.textContent = trait;
+    traitsEl.appendChild(span);
+  });
+  
+  // Update note link per type
+  const noteLink = document.getElementById('noteLink');
+  noteLink.href = t.noteUrl;
+  noteLink.innerHTML = `「<strong>${t.name}</strong>」の才能をさらに深掘り → noteで読む`;
+  
+  document.getElementById('result').classList.add('active');
+}
+
+function shareResult() {
+  const topType = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
+  const t = types[topType];
+  
+  const W = 1200;
+  const H = 1500;
+  const canvas = document.createElement('canvas');
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  
+  // Background
+  ctx.fillStyle = '#141419';
+  ctx.fillRect(0, 0, W, H);
+  
+  // Accent line at top
+  const grad = ctx.createLinearGradient(0, 0, W, 0);
+  grad.addColorStop(0, 'transparent');
+  grad.addColorStop(0.5, '#c4a882');
+  grad.addColorStop(1, 'transparent');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, 4);
+  
+  let y = 100;
+  
+  // Top label
+  ctx.fillStyle = '#c4a882';
+  ctx.font = '22px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.letterSpacing = '6px';
+  ctx.fillText('内向型の隠れた才能診断', W / 2, y);
+  y += 80;
+  
+  // Type name
+  ctx.fillStyle = '#ede9e3';
+  ctx.font = 'bold 56px serif';
+  ctx.letterSpacing = '2px';
+  ctx.fillText(t.name, W / 2, y);
+  y += 40;
+  
+  // Sub name
+  ctx.fillStyle = '#a09cac';
+  ctx.font = '26px sans-serif';
+  ctx.letterSpacing = '2px';
+  ctx.fillText(t.sub, W / 2, y);
+  y += 60;
+  
+  // Divider line
+  ctx.strokeStyle = '#c4a882';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(W / 2 - 40, y);
+  ctx.lineTo(W / 2 + 40, y);
+  ctx.stroke();
+  y += 60;
+  
+  // Description - first paragraph only
+  ctx.fillStyle = '#ede9e3';
+  ctx.font = '28px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.letterSpacing = '0px';
+  const descText = t.desc.split('\n\n')[0];
+  const lines = wrapText(ctx, descText, W - 160, 28);
+  const lineHeight = 56;
+  lines.forEach(line => {
+    ctx.fillText(line, 80, y);
+    y += lineHeight;
+  });
+  y += 30;
+  
+  // Second paragraph
+  const descPara2 = t.desc.split('\n\n')[1];
+  if (descPara2) {
+    const lines2 = wrapText(ctx, descPara2, W - 160, 28);
+    lines2.forEach(line => {
+      ctx.fillText(line, 80, y);
+      y += lineHeight;
+    });
+    y += 20;
+  }
+  
+  // Traits
+  y += 20;
+  ctx.textAlign = 'center';
+  ctx.font = '24px sans-serif';
+  ctx.fillStyle = '#a09cac';
+  const traitsStr = t.traits.map(tr => '# ' + tr).join('　');
+  ctx.fillText(traitsStr, W / 2, y);
+  
+  // Footer
+  y = H - 80;
+  ctx.strokeStyle = '#333340';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(80, y - 30);
+  ctx.lineTo(W - 80, y - 30);
+  ctx.stroke();
+  
+  ctx.font = '20px sans-serif';
+  ctx.fillStyle = '#a09cac';
+  ctx.textAlign = 'center';
+  ctx.fillText('内向型の隠れた才能診断', W / 2, y);
+  y += 30;
+  ctx.fillStyle = '#c4a882';
+  ctx.font = '22px sans-serif';
+  ctx.fillText('詳しくはnoteで → note.com/yasu42', W / 2, y);
+  
+  // Device-aware save
+  const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  const dataUrl = canvas.toDataURL('image/png');
+  
+  if (isMobile) {
+    // Mobile: show image in overlay for long-press save
+    showImageOverlay(dataUrl);
+  } else {
+    // PC: direct download
+    const link = document.createElement('a');
+    link.download = '内向型の隠れた才能診断.png';
+    link.href = dataUrl;
+    link.click();
+  }
+}
+
+function showImageOverlay(dataUrl) {
+  // Create overlay
+  const overlay = document.createElement('div');
+  overlay.id = 'imageOverlay';
+  overlay.style.cssText = `
+    position: fixed; inset: 0; z-index: 10000;
+    background: rgba(0,0,0,0.92);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 24px;
+    animation: fadeIn 0.3s ease;
+  `;
+  
+  const hint = document.createElement('p');
+  hint.textContent = '画像を長押しして保存できます';
+  hint.style.cssText = `
+    color: #a09cac; font-size: 13px;
+    margin-bottom: 16px; letter-spacing: 1px;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+  `;
+  
+  const img = document.createElement('img');
+  img.src = dataUrl;
+  img.style.cssText = `
+    max-width: 100%; max-height: 70vh;
+    border: 1px solid #333340;
+    border-radius: 4px;
+  `;
+  
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = '閉じる';
+  closeBtn.style.cssText = `
+    margin-top: 20px; padding: 12px 36px;
+    background: transparent; border: 1px solid #333340;
+    color: #a09cac; font-size: 13px;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    cursor: pointer; letter-spacing: 1px;
+  `;
+  closeBtn.onclick = () => overlay.remove();
+  
+  overlay.appendChild(hint);
+  overlay.appendChild(img);
+  overlay.appendChild(closeBtn);
+  document.body.appendChild(overlay);
+}
+
+function wrapText(ctx, text, maxWidth, fontSize) {
+  const lines = [];
+  let current = '';
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    const test = current + char;
+    const metrics = ctx.measureText(test);
+    if (metrics.width > maxWidth && current.length > 0) {
+      lines.push(current);
+      current = char;
+    } else {
+      current = test;
+    }
+  }
+  if (current) lines.push(current);
+  return lines;
+}
+
+function shareToX() {
+  const topType = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
+  const t = types[topType];
+  
+  const text = `内向型の隠れた才能診断で「${t.name}」だった\n\n${t.desc.split('\n\n')[0]}\n\n`;
+  const url = location.href;
+  const hashtag = '内向型の隠れた才能診断';
+  
+  const tweetUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}&hashtags=${encodeURIComponent(hashtag)}`;
+  window.open(tweetUrl, '_blank', 'width=550,height=420');
+}
+
+function retry() {
+  currentQ = 0;
+  scores = { architect: 0, healer: 0, observer: 0, alchemist: 0, connector: 0 };
+  history = [];
+  document.getElementById('result').classList.remove('active');
+  document.getElementById('quiz').classList.add('active');
+  showQuestion();
+}
+
+// Set save button label based on device
+document.addEventListener('DOMContentLoaded', () => {
+  const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  const btn = document.getElementById('btnSave');
+  if (btn) btn.textContent = isMobile ? '結果を画像で表示' : '画像を保存';
+});
+</script>
+
+</body>
+</html>
